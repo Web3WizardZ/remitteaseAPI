@@ -1,6 +1,6 @@
 {
   "name": "remittease-api",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "RemittEase API for cross-border transfers",
   "main": "app.js",
   "dependencies": {
