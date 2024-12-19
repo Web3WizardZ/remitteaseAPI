@@ -6,8 +6,7 @@
   "scripts": {
     "start": "node app.js",
     "dev": "nodemon app.js",
-    "build": "vercel build",
-    "deploy": "vercel deploy",
+    "build": "echo \"No build required\"",
     "prepare": "npm run build"
   },
   "dependencies": {
