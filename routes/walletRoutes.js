@@ -1,93 +1,41 @@
 const express = require('express');
-const { ethers } = require('ethers');
-const { MongoClient } = require('mongodb');
-const crypto = require('crypto');
-
 const router = express.Router();
+const ethers = require('ethers');
 
-// MongoDB connection
-const uri = process.env.MONGODB_URI;
-const client = new MongoClient(uri);
-
-async function createWallet(req, res) {
+// Create wallet
+router.post('/create', async (req, res) => {
   try {
     const { fullName, email, currency } = req.body;
-
-    // Validate required fields
-    if (!fullName || !email || !currency) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields'
-      });
-    }
-
-    // Create Ethereum wallet
     const wallet = ethers.Wallet.createRandom();
-    const walletAddress = wallet.address;
-    const privateKey = wallet.privateKey;
-    const mnemonic = wallet.mnemonic.phrase;
-
-    // Generate a unique user ID
-    const userId = crypto.randomBytes(16).toString('hex');
-
-    // Connect to MongoDB
-    await client.connect();
-    const db = client.db('remittease');
-    const users = db.collection('users');
-
-    // Check if email already exists
-    const existingUser = await users.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email already registered'
-      });
-    }
-
-    // Create user document
-    const user = {
-      _id: userId,
-      fullName,
-      email,
-      currency,
-      walletAddress,
-      // Store encrypted private key in production
-      privateKey: privateKey,
-      createdAt: new Date(),
-      lastLogin: new Date()
-    };
-
-    // Insert user into database
-    await users.insertOne(user);
-
-    // Return success response
-    res.status(201).json({
+    
+    res.json({
       success: true,
-      user: {
-        id: userId,
-        name: fullName,
-        email,
-        currency
-      },
       wallet: {
-        address: walletAddress,
+        address: wallet.address,
         balance: "0.00",
-        seed: mnemonic
-      }
+        seed: wallet.mnemonic.phrase
+      },
+      user: { fullName, email, currency }
     });
-
   } catch (error) {
-    console.error('Wallet creation error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to create wallet'
-    });
-  } finally {
-    await client.close();
+    res.status(500).json({ success: false, error: error.message });
   }
-}
+});
 
-// Route handler
-router.post('/create', createWallet);
+// Get balance
+router.get('/balance/:address', async (req, res) => {
+  try {
+    const { address } = req.params;
+    const provider = new ethers.providers.JsonRpcProvider(process.env.RPC_URL);
+    const balance = await provider.getBalance(address);
+    
+    res.json({
+      success: true,
+      balance: ethers.utils.formatEther(balance)
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
 
 module.exports = router;
