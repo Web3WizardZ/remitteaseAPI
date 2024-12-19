@@ -11,6 +11,8 @@ app.use(cors());
 // Import routes
 const transferRoutes = require('./routes/transferRoutes');
 const withdrawRoutes = require('./routes/withdrawRoutes');
+const walletRoutes = require('./routes/walletRoutes');
+app.use('/api/v1/wallet', walletRoutes);
 
 // Register routes
 app.use('/api/v1/transfer', transferRoutes);

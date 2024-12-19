@@ -1,11 +1,11 @@
 {
-    "version": 2,
-    "builds": [
-      { "src": "app.js", "use": "@vercel/node" }
-    ],
-    "routes": [
-      { "src": "/api/v1/transfer/(.*)", "dest": "/app.js" },
-      { "src": "/api/v1/withdraw/(.*)", "dest": "/app.js" },
-      { "src": "/(.*)", "dest": "/app.js" }
-    ]
-  }
+  "version": 2,
+  "builds": [
+    { "src": "app.js", "use": "@vercel/node" }
+  ],
+  "routes": [
+    { "src": "/api/v1/transfer/send", "dest": "/app.js" },
+    { "src": "/api/v1/transfer/notify", "dest": "/app.js" },
+    { "src": "/(.*)", "dest": "/app.js" }
+  ]
+}
